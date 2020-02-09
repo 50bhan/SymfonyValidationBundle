@@ -1,0 +1,7 @@
+framework:
+  test: true
+  secret: test
+  router:
+    resource: "%kernel.project_dir%/Tests/Config/routing.yaml"
+  fragments:
+    enabled: true

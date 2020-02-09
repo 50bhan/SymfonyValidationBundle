@@ -1,0 +1,48 @@
+{
+  "name": "sharifi/symfony-validation-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony SymfonyValidationBundle",
+  "keywords": [
+    "symfony-validation",
+    "symfony",
+    "validation"
+  ],
+  "support": {
+    "issues": "https://github.com/50bhan/SymfonyValidationBundle/issues",
+    "source": "https://github.com/50bhan/SymfonyValidationBundle"
+  },
+  "authors": [
+    {
+      "name": "Sobhan Sharifi",
+      "email": "sobhan.sharifi.sadeghi@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "php": "^7.1",
+    "symfony/framework-bundle": "^4.0|^5.0",
+    "symfony/validator": "4.0|^5.0"
+  },
+  "require-dev": {
+    "php-coveralls/php-coveralls": "^2.1",
+    "phpunit/phpunit": "^7.1|^8.0",
+    "sensio/framework-extra-bundle": "^5.5",
+    "symfony/browser-kit": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sharifi\\Bundle\\SymfonyValidationBundle\\": ""
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit --coverage-text",
+    "test-coverage": "vendor/bin/php-coveralls -v"
+  },
+  "config": {
+    "sort-packages": true,
+    "discard-changes": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
