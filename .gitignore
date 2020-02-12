@@ -4,8 +4,9 @@ phpunit.xml
 vendor/*
 build/
 var/
-
+cache/
 /node_modules/
 npm-debug.log
 yarn-error.log
 .phpunit.result.cache
+.htaccess
