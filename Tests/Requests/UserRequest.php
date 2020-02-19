@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class UserRequest extends FormRequest
 {
     /**
-     * @inheritDoc
+     * Get the validation rules that apply to the request.
      */
     protected function rules(): array
     {
