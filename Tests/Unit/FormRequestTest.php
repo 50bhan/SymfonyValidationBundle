@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace Sharifi\Bundle\SymfonyValidationBundle\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;

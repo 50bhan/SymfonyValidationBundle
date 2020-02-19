@@ -3,8 +3,8 @@
 namespace Sharifi\Bundle\SymfonyValidationBundle\Requests;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
+use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 
 class RequestValueResolver implements ArgumentValueResolverInterface
 {
@@ -13,7 +13,7 @@ class RequestValueResolver implements ArgumentValueResolverInterface
      */
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return is_subclass_of($argument->getType(), Request::class);
+        return is_subclass_of($argument->getType(), FormRequest::class);
     }
 
     /**
