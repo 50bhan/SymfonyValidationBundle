@@ -4,6 +4,7 @@ namespace Sharifi\Bundle\SymfonyValidationBundle\Requests;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class FormRequest extends Request
 {
@@ -16,6 +17,16 @@ abstract class FormRequest extends Request
      * @var array
      */
     protected $validated = [];
+
+    /**
+     * @var array
+     */
+    protected $rules = [];
+
+    /**
+     * @var ValidatorInterface
+     */
+    protected $validator;
 
     /**
      * {@inheritDoc}
@@ -31,6 +42,9 @@ abstract class FormRequest extends Request
     ) {
         parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
 
+        $this->validator = Validation::createValidator();
+        $this->rules     = $this->rules();
+
         $this->validate($this->request->all());
     }
 
@@ -39,22 +53,22 @@ abstract class FormRequest extends Request
      */
     public function validate($request): void
     {
-        $validator     = Validation::createValidator();
-        $rules         = $this->rules();
-        $request       = $this->mergeRulesAndRequest($request, $rules);
+        $request       = $this->mergeRulesAndRequest($request, $this->rules);
         $violationList = [];
 
-        foreach ($request as $key => $value) {
-            if (array_key_exists($key, $rules)) {
-                $validated = $validator->validate($value, $rules[$key]);
+        $filteredRequest = array_filter($request, function ($parameter) {
+            return array_key_exists($parameter, $this->rules);
+        }, ARRAY_FILTER_USE_KEY);
 
-                if ($validated->count()) {
-                    $violationList[$key] = $validated;
-                } else {
-                    $this->validated[$key] = $value;
-                }
+        array_walk($filteredRequest, function ($value, $parameter) {
+            $validated = $this->validator->validate($value, $this->rules[$parameter]);
+
+            if ($validated->count()) {
+                $violationList[$parameter] = $validated;
+            } else {
+                $this->validated[$parameter] = $value;
             }
-        }
+        });
 
         if ($violationList) {
             $this->prepareErrors($violationList);
@@ -67,7 +81,7 @@ abstract class FormRequest extends Request
     protected function prepareErrors(array $violationList): void
     {
         foreach ($violationList as $field => $violations) {
-            foreach ($violations as $index => $violation) {
+            foreach ($violations as $index => $_) {
                 $this->errors[$field][] = $violations[$index]->getMessage();
             }
         }
