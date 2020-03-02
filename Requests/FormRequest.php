@@ -36,10 +36,8 @@ abstract class FormRequest extends Request
 
     /**
      * @param $request
-     *
-     * @return $this
      */
-    public function validate($request): self
+    public function validate($request): void
     {
         $validator     = Validation::createValidator();
         $rules         = $this->rules();
@@ -61,8 +59,6 @@ abstract class FormRequest extends Request
         if ($violationList) {
             $this->prepareErrors($violationList);
         }
-
-        return $this;
     }
 
     /**
