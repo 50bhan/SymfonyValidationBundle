@@ -3,6 +3,7 @@
 namespace Sharifi\Bundle\SymfonyValidationBundle\Requests;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -12,11 +13,6 @@ abstract class FormRequest extends Request
      * @var array
      */
     protected $errors = [];
-
-    /**
-     * @var array
-     */
-    protected $violations = [];
 
     /**
      * @var array
@@ -63,24 +59,25 @@ abstract class FormRequest extends Request
         }, ARRAY_FILTER_USE_KEY);
 
         array_walk($filteredRequest, function ($value, $parameter) {
-            $validated = $this->validator->validate($value, $this->rules[$parameter]);
+            $violations = $this->validator->validate($value, $this->rules[$parameter]);
 
-            if ($validated->count()) {
-                $this->violations[$parameter][] = $validated;
+            if ($violations->count()) {
+                $this->prepareErrors($parameter, $violations);
             } else {
                 $this->validated[$parameter] = $value;
             }
         });
-
-        $this->prepareErrors();
     }
 
-    protected function prepareErrors(): void
+    /**
+     * @param $parameter
+     * @param $violations
+     */
+    protected function prepareErrors($parameter, $violations): void
     {
-        foreach ($this->violations as $parameter => $violations) {
-            foreach ($violations as $index => $violation) {
-                $this->errors[$parameter][] = $violation[$index]->getMessage();
-            }
+        foreach ($violations as $violation) {
+            /** @var ConstraintViolation $violation */
+            $this->errors[$parameter][] = $violation->getMessage();
         }
     }
 
@@ -113,6 +110,6 @@ abstract class FormRequest extends Request
      */
     public function validated(): array
     {
-        return empty($this->violations) ? $this->validated : $this->errors;
+        return empty($this->errors) ? $this->validated : $this->errors;
     }
 }
