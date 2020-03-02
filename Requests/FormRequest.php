@@ -61,24 +61,10 @@ abstract class FormRequest extends Request
         array_walk($filteredRequest, function ($value, $parameter) {
             $violations = $this->validator->validate($value, $this->rules[$parameter]);
 
-            if ($violations->count()) {
-                $this->prepareErrors($parameter, $violations);
-            } else {
-                $this->validated[$parameter] = $value;
-            }
+            $violations->count() ?
+                $this->addToErrors($parameter, $violations) :
+                $this->addToValidated($parameter, $value);
         });
-    }
-
-    /**
-     * @param $parameter
-     * @param $violations
-     */
-    protected function prepareErrors($parameter, $violations): void
-    {
-        foreach ($violations as $violation) {
-            /** @var ConstraintViolation $violation */
-            $this->errors[$parameter][] = $violation->getMessage();
-        }
     }
 
     /**
@@ -96,6 +82,27 @@ abstract class FormRequest extends Request
         $rules = array_fill_keys(array_keys($rules), null);
 
         return array_merge($rules, $request);
+    }
+
+    /**
+     * @param $parameter
+     * @param $violations
+     */
+    protected function addToErrors($parameter, $violations): void
+    {
+        foreach ($violations as $violation) {
+            /** @var ConstraintViolation $violation */
+            $this->errors[$parameter][] = $violation->getMessage();
+        }
+    }
+
+    /**
+     * @param $parameter
+     * @param $value
+     */
+    protected function addToValidated($parameter, $value): void
+    {
+        $this->validated[$parameter] = $value;
     }
 
     /**
