@@ -16,6 +16,11 @@ abstract class FormRequest extends Request
     /**
      * @var array
      */
+    protected $violations = [];
+
+    /**
+     * @var array
+     */
     protected $validated = [];
 
     /**
@@ -44,8 +49,8 @@ abstract class FormRequest extends Request
 
         $this->validator = Validation::createValidator();
         $this->rules     = $this->rules();
-
-        $this->validate($this->request->all());
+        $request         = $this->mergeRulesAndRequest($this->request->all(), $this->rules);
+        $this->validate($request);
     }
 
     /**
@@ -53,9 +58,6 @@ abstract class FormRequest extends Request
      */
     public function validate($request): void
     {
-        $request       = $this->mergeRulesAndRequest($request, $this->rules);
-        $violationList = [];
-
         $filteredRequest = array_filter($request, function ($parameter) {
             return array_key_exists($parameter, $this->rules);
         }, ARRAY_FILTER_USE_KEY);
@@ -64,25 +66,20 @@ abstract class FormRequest extends Request
             $validated = $this->validator->validate($value, $this->rules[$parameter]);
 
             if ($validated->count()) {
-                $violationList[$parameter] = $validated;
+                $this->violations[$parameter][] = $validated;
             } else {
                 $this->validated[$parameter] = $value;
             }
         });
 
-        if ($violationList) {
-            $this->prepareErrors($violationList);
-        }
+        $this->prepareErrors();
     }
 
-    /**
-     * @param array $violationList
-     */
-    protected function prepareErrors(array $violationList): void
+    protected function prepareErrors(): void
     {
-        foreach ($violationList as $field => $violations) {
-            foreach ($violations as $index => $_) {
-                $this->errors[$field][] = $violations[$index]->getMessage();
+        foreach ($this->violations as $parameter => $violations) {
+            foreach ($violations as $index => $violation) {
+                $this->errors[$parameter][] = $violation[$index]->getMessage();
             }
         }
     }
@@ -116,6 +113,6 @@ abstract class FormRequest extends Request
      */
     public function validated(): array
     {
-        return empty($this->errors) ? $this->validated : $this->errors;
+        return empty($this->violations) ? $this->validated : $this->errors;
     }
 }
