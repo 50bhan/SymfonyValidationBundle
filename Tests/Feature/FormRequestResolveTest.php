@@ -17,9 +17,9 @@ class FormRequestResolveTest extends WebTestCase
 
         self::assertJsonStringEqualsJsonString(
             json_encode([
-                'name'  => ['This value should not be blank.'],
-                'email' => ['This value should not be blank.']
-            ]),
+                'name' => ['This value should not be blank.'],
+                'email' => ['This value should not be blank.'],
+            ], JSON_THROW_ON_ERROR),
             $client->getResponse()->getContent()
         );
     }
@@ -32,14 +32,14 @@ class FormRequestResolveTest extends WebTestCase
         $client = static::createClient();
 
         $body = [
-            'name'  => 'John Doe',
-            'email' => 'john@gmail.com'
+            'name' => 2.05,
+            'email' => 'john@gmail.com',
         ];
 
         $client->request('POST', '/api/user', $body);
 
         self::assertJsonStringEqualsJsonString(
-            json_encode($body),
+            json_encode($body, JSON_THROW_ON_ERROR),
             $client->getResponse()->getContent()
         );
     }

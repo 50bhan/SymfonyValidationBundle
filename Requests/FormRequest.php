@@ -4,30 +4,19 @@ namespace Sharifi\Bundle\SymfonyValidationBundle\Requests;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class FormRequest extends Request
 {
-    /**
-     * @var array
-     */
-    protected $errors = [];
+    protected array $errors = [];
 
-    /**
-     * @var array
-     */
-    protected $validated = [];
+    protected array $validated = [];
 
-    /**
-     * @var array
-     */
-    protected $rules = [];
+    protected array $rules = [];
 
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
+    protected ValidatorInterface $validator;
 
     /**
      * {@inheritDoc}
@@ -44,14 +33,11 @@ abstract class FormRequest extends Request
         parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
 
         $this->validator = Validation::createValidator();
-        $this->rules     = $this->rules();
-        $request         = $this->mergeRulesAndRequest($this->request->all(), $this->rules);
+        $this->rules = $this->rules();
+        $request = $this->mergeRulesAndRequest($this->request->all(), $this->rules);
         $this->validate($request);
     }
 
-    /**
-     * @param $request
-     */
     public function validate($request): void
     {
         $filteredRequest = array_filter($request, function ($parameter) {
@@ -71,11 +57,6 @@ abstract class FormRequest extends Request
      * This function will merge missing rules (from request) with current
      *  request object for further validation. This way validation will be based
      *  on rules and all rules will be considered.
-     *
-     * @param array $request
-     * @param array $rules
-     *
-     * @return array
      */
     protected function mergeRulesAndRequest(array $request, array $rules): array
     {
@@ -84,11 +65,7 @@ abstract class FormRequest extends Request
         return array_merge($rules, $request);
     }
 
-    /**
-     * @param $parameter
-     * @param $violations
-     */
-    protected function addToErrors($parameter, $violations): void
+    protected function addToErrors(string $parameter, ConstraintViolationList $violations): void
     {
         foreach ($violations as $violation) {
             /** @var ConstraintViolation $violation */
@@ -97,23 +74,17 @@ abstract class FormRequest extends Request
     }
 
     /**
-     * @param $parameter
-     * @param $value
+     * @param mixed $value
      */
-    protected function addToValidated($parameter, $value): void
+    protected function addToValidated(string $parameter, $value): void
     {
         $this->validated[$parameter] = $value;
     }
 
-    /**
-     * @return array
-     */
     abstract protected function rules(): array;
 
     /**
      * Return validated request parameters or errors.
-     *
-     * @return array
      */
     public function validated(): array
     {
